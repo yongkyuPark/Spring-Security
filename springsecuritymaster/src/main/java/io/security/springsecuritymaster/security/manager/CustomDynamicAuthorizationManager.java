@@ -29,11 +29,17 @@ public class CustomDynamicAuthorizationManager implements AuthorizationManager<R
     private static final AuthorizationDecision ACCESS = new AuthorizationDecision(true);
     private final HandlerMappingIntrospector handlerMappingIntrospector;
     private final ResourcesRepository resourcesRepository;
+    DynamicAuthorizationService dynamicAuthorizationService;
 
     @PostConstruct
     public void mappings() {
-        DynamicAuthorizationService dynamicAuthorizationService =
+        dynamicAuthorizationService =
                 new DynamicAuthorizationService(new PersistentUrlRoleMapper(resourcesRepository));
+
+        setMapping();
+    }
+
+    private void setMapping() {
         mappings = dynamicAuthorizationService.getUrlRoleMappings()
                 .entrySet().stream()
                 .map(entry -> new RequestMatcherEntry<>(
@@ -72,5 +78,10 @@ public class CustomDynamicAuthorizationManager implements AuthorizationManager<R
             }
         }
         return ACCESS;
+    }
+
+    public synchronized void reload() {
+        mappings.clear();
+        setMapping();
     }
 }
