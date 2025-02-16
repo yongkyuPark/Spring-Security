@@ -31,4 +31,9 @@ public class HomeController {
         return "rest/dashboard";
     }
 
+    @GetMapping(value = "/db")
+    public String db() {
+        return "/db";
+    }
+
 }
